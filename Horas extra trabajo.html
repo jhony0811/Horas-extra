@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f1117" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Horas Extras" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>Horas Extras</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      background: #0f1117;
+      color: #e8eaf0;
+      font-family: -apple-system, 'Inter', 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+
+    /* Header */
+    #header {
+      background: linear-gradient(135deg, #1a1d2e 0%, #0f1117 100%);
+      border-bottom: 1px solid #23263a;
+      padding: 48px 20px 18px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    #header .eyebrow {
+      color: #5c6bc0;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    #header h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 14px;
+    }
+    .nav-mes {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-mes span {
+      font-size: 16px;
+      font-weight: 700;
+      min-width: 170px;
+      text-align: center;
+      color: #c5cae9;
+    }
+    .btn-nav {
+      background: #1a1d2e;
+      border: 1px solid #23263a;
+      color: #7986cb;
+      border-radius: 8px;
+      width: 34px;
+      height: 34px;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .btn-nav:active { background: #23263a; }
+
+    /* Contenedor principal */
+    #main { max-width: 820px; margin: 0 auto; padding: 0 14px; }
+
+    /* Tarjetas resumen */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 18px 0 14px;
+    }
+    @media (max-width: 500px) {
+      .cards { grid-template-columns: repeat(2, 1fr); }
+    }
+    .card {
+      background: #1a1d2e;
+      border: 1px solid #23263a;
+      border-radius: 12px;
+      padding: 11px 12px;
+    }
+    .card.festivo { background: #1e1a0e; border-color: #3a2e10; }
+    .card-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #3d4263;
+      margin-bottom: 5px;
+    }
+    .card-value {
+      font-size: 20px;
+      font-weight: 800;
+    }
+    .card-unit { font-size: 11px; font-weight: 500; color: #555b7a; margin-left: 2px; }
+
+    /* Leyenda */
+    .leyenda {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 12px;
+      font-size: 11px;
+      color: #555b7a;
+      flex-wrap: wrap;
+    }
+    .leyenda-item { display: flex; align-items: center; gap: 5px; }
+    .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex-shrink: 0; }
+
+    /* Tabla */
+    #tabla {
+      background: #1a1d2e;
+      border-radius: 14px;
+      border: 1px solid #23263a;
+      overflow: hidden;
+    }
+    .fila-header {
+      display: flex;
+      align-items: center;
+      padding: 9px 14px;
+      gap: 8px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #3d4263;
+      background: #141627;
+    }
+    .col-dia { width: 62px; }
+    .col-campo { flex: 1; }
+    .col-result { width: 100px; text-align: right; }
+
+    .fila-dia {
+      border-top: 1px solid #23263a;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    .fila-dia:active { background: #1e2340 !important; }
+    .fila-dia.es-hoy { background: #1e2340; }
+    .fila-dia.es-sabado { background: #1c1a0e; }
+    .fila-dia.es-domingo { background: #1e1a0e; }
+
+    .fila-principal {
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      gap: 8px;
+    }
+    .dia-num {
+      font-size: 15px;
+      font-weight: 600;
+      color: #c5cae9;
+    }
+    .dia-num.hoy { color: #7986cb; font-weight: 800; }
+    .dia-num.finde { color: #ffb74d; }
+    .dia-nombre {
+      font-size: 10px;
+      color: #3d4263;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .dia-nombre.finde { color: #a07840; }
+    .festivo-tag {
+      font-size: 8px;
+      color: #ffb74d;
+      font-weight: 700;
+      line-height: 1;
+      margin-top: 2px;
+    }
+
+    .celda-val {
+      flex: 1;
+      font-size: 13px;
+      color: #8892b0;
+    }
+    .celda-val em { color: #3d4263; font-style: normal; }
+
+    .badge {
+      font-weight: 700;
+      font-size: 12px;
+      border-radius: 8px;
+      padding: 2px 8px;
+      display: inline-block;
+    }
+    .badge-verde { color: #81c784; background: #1b3a2a; }
+    .badge-rojo { color: #e57373; background: #3a1b1b; }
+    .badge-gris { color: #90a4ae; background: #1a2330; }
+    .badge-festivo { color: #ffb74d; background: #3a2e10; }
+
+    /* Inputs inline */
+    .fila-inputs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+    }
+    .input-time, .input-num {
+      background: #0f1117;
+      border: 1px solid #2e3358;
+      border-radius: 8px;
+      color: #c5cae9;
+      font-size: 13px;
+      padding: 6px 8px;
+      outline: none;
+      font-family: inherit;
+      -webkit-appearance: none;
+    }
+    .input-time { flex: 1; min-width: 0; }
+    .input-num { width: 60px; }
+
+    /* Detalle expandido */
+    .detalle {
+      padding: 2px 14px 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 11px;
+      color: #7986cb;
+    }
+    .detalle strong { color: #c5cae9; }
+
+    /* Footer */
+    #footer {
+      text-align: center;
+      font-size: 11px;
+      color: #3d4263;
+      margin-top: 22px;
+    }
+
+    /* Instrucción PWA */
+    #pwa-tip {
+      background: #1a1d2e;
+      border: 1px solid #23263a;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 18px 0 0;
+      font-size: 12px;
+      color: #7986cb;
+      line-height: 1.6;
+      display: none;
+    }
+    #pwa-tip strong { color: #c5cae9; }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div class="eyebrow">Control de jornada</div>
+  <h1>Horas Extras</h1>
+  <div class="nav-mes">
+    <button class="btn-nav" id="btn-prev">‹</button>
+    <span id="label-mes"></span>
+    <button class="btn-nav" id="btn-next">›</button>
+  </div>
+</div>
+
+<div id="main">
+  <div class="cards" id="cards"></div>
+  <div class="leyenda">
+    <div class="leyenda-item"><span class="dot" style="background:#1b3a2a"></span> Extras laborables</div>
+    <div class="leyenda-item"><span class="dot" style="background:#3a2e10"></span> Horas festivas (Sáb/Dom)</div>
+  </div>
+  <div id="tabla">
+    <div class="fila-header">
+      <span class="col-dia">Día</span>
+      <span class="col-campo">Entrada</span>
+      <span class="col-campo">Pausa&nbsp;(min)</span>
+      <span class="col-campo">Salida</span>
+      <span class="col-result">Horas</span>
+    </div>
+    <div id="filas"></div>
+  </div>
+  <div id="pwa-tip">
+    📲 <strong>Instalar como app:</strong><br>
+    <strong>iPhone/iPad:</strong> Pulsa el botón compartir (⬆️) → "Añadir a pantalla de inicio"<br>
+    <strong>Android:</strong> Pulsa el menú (⋮) → "Añadir a pantalla de inicio"
+  </div>
+  <p id="footer">Toca cualquier día para editar · Jornada base: 8h · Sáb y Dom = horas festivas</p>
+</div>
+
+<script>
+const JORNADA = 8;
+const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const DIAS_NOMBRE = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+
+let mes, anio, editando = null;
+let registros = {};
+
+// Cargar datos guardados
+try {
+  const saved = localStorage.getItem('horas-extras-data');
+  if (saved) registros = JSON.parse(saved);
+} catch(e) {}
+
+function guardar() {
+  try { localStorage.setItem('horas-extras-data', JSON.stringify(registros)); } catch(e) {}
+}
+
+function init() {
+  const hoy = new Date();
+  mes = hoy.getMonth();
+  anio = hoy.getFullYear();
+  render();
+}
+
+function clave() { return `${anio}-${mes}`; }
+function getReg() { return registros[clave()] || {}; }
+
+function setReg(fecha, campo, valor) {
+  if (!registros[clave()]) registros[clave()] = {};
+  if (!registros[clave()][fecha]) registros[clave()][fecha] = {};
+  registros[clave()][fecha][campo] = valor;
+  guardar();
+  recalcularTotales();
+}
+
+function getDiasDelMes() {
+  const total = new Date(anio, mes + 1, 0).getDate();
+  return Array.from({ length: total }, (_, i) => {
+    const d = new Date(anio, mes, i + 1);
+    const dow = d.getDay();
+    return { fecha: i + 1, dow, esSab: dow === 6, esDom: dow === 0, esFinde: dow === 0 || dow === 6 };
+  });
+}
+
+function calcular(entrada, salida, pausa, esFinde) {
+  if (!entrada || !salida) return null;
+  const [eh, em] = entrada.split(':').map(Number);
+  const [sh, sm] = salida.split(':').map(Number);
+  const totalMin = (sh * 60 + sm) - (eh * 60 + em);
+  if (totalMin <= 0) return null;
+  const trabajadas = parseFloat(((totalMin - (Number(pausa) || 0)) / 60).toFixed(2));
+  if (esFinde) return { trabajadas, extras: 0, festivas: trabajadas };
+  return { trabajadas, extras: parseFloat((trabajadas - JORNADA).toFixed(2)), festivas: 0 };
+}
+
+function fmt(h) {
+  return (h >= 0 ? '+' : '') + h.toFixed(2) + 'h';
+}
+
+function cambiarMes(dir) {
+  mes += dir;
+  if (mes > 11) { mes = 0; anio++; }
+  if (mes < 0) { mes = 11; anio--; }
+  editando = null;
+  render();
+}
+
+function render() {
+  document.getElementById('label-mes').textContent = `${MESES[mes]} ${anio}`;
+  renderFilas();
+  recalcularTotales();
+}
+
+function renderFilas() {
+  const dias = getDiasDelMes();
+  const reg = getReg();
+  const hoy = new Date();
+  const container = document.getElementById('filas');
+  container.innerHTML = '';
+
+  dias.forEach(({ fecha, dow, esSab, esDom, esFinde }) => {
+    const r = reg[fecha] || {};
+    const calc = calcular(r.entrada, r.salida, r.pausa, esFinde);
+    const esHoy = hoy.getDate() === fecha && hoy.getMonth() === mes && hoy.getFullYear() === anio;
+    const activo = editando === fecha;
+
+    const fila = document.createElement('div');
+    fila.className = 'fila-dia' + (esHoy ? ' es-hoy' : esSab ? ' es-sabado' : esDom ? ' es-domingo' : '');
+    fila.dataset.fecha = fecha;
+
+    // Badge resultado
+    let badgeHTML = '<span style="color:#3d4263;font-size:13px">—</span>';
+    if (calc) {
+      if (esFinde) {
+        badgeHTML = `<span class="badge badge-festivo">🌟 ${calc.festivas.toFixed(2)}h</span>`;
+      } else if (calc.extras > 0) {
+        badgeHTML = `<span class="badge badge-verde">${fmt(calc.extras)}</span>`;
+      } else if (calc.extras < 0) {
+        badgeHTML = `<span class="badge badge-rojo">${fmt(calc.extras)}</span>`;
+      } else {
+        badgeHTML = `<span class="badge badge-gris">${fmt(calc.extras)}</span>`;
+      }
+    }
+
+    const camposHTML = activo ? `
+      <div class="fila-inputs">
+        <input class="input-time" type="time" data-campo="entrada" value="${r.entrada || ''}" />
+        <input class="input-num" type="number" min="0" max="120" placeholder="30" data-campo="pausa" value="${r.pausa ?? ''}" />
+        <input class="input-time" type="time" data-campo="salida" value="${r.salida || ''}" />
+      </div>
+    ` : `
+      <span class="celda-val">${r.entrada || '<em>--:--</em>'}</span>
+      <span class="celda-val">${r.pausa ? r.pausa + ' min' : '<em>--</em>'}</span>
+      <span class="celda-val">${r.salida || '<em>--:--</em>'}</span>
+    `;
+
+    const detalleHTML = (activo && calc) ? `
+      <div class="detalle">
+        <span>⏱ Trabajadas: <strong>${calc.trabajadas.toFixed(2)}h</strong></span>
+        ${esFinde
+          ? `<span>🌟 Tipo: <strong style="color:#ffb74d">Festivo</strong></span>
+             <span>🌟 Festivas: <strong style="color:#ffb74d">${fmt(calc.festivas)}</strong></span>`
+          : `<span>🎯 Jornada: <strong>8h</strong></span>
+             <span>${calc.extras > 0 ? '➕' : calc.extras < 0 ? '➖' : '✅'} Extras: <strong style="color:${calc.extras > 0 ? '#81c784' : calc.extras < 0 ? '#e57373' : '#90a4ae'}">${fmt(calc.extras)}</strong></span>`
+        }
+      </div>
+    ` : '';
+
+    fila.innerHTML = `
+      <div class="fila-principal">
+        <div class="col-dia" style="display:flex;align-items:center;gap:6px">
+          <span class="dia-num ${esHoy ? 'hoy' : esFinde ? 'finde' : ''}">${String(fecha).padStart(2,'0')}</span>
+          <div>
+            <div class="dia-nombre ${esFinde ? 'finde' : ''}">${DIAS_NOMBRE[dow]}</div>
+            ${esFinde ? '<div class="festivo-tag">FESTIVO</div>' : ''}
+          </div>
+        </div>
+        ${camposHTML}
+        <div class="col-result">${badgeHTML}</div>
+      </div>
+      ${detalleHTML}
+    `;
+
+    // Eventos
+    fila.addEventListener('click', (e) => {
+      if (e.target.tagName === 'INPUT') return;
+      editando = activo ? null : fecha;
+      renderFilas();
+      if (editando) {
+        setTimeout(() => {
+          const inputs = fila.querySelectorAll('input');
+          inputs.forEach(inp => {
+            inp.addEventListener('change', (ev) => {
+              ev.stopPropagation();
+              setReg(fecha, inp.dataset.campo, inp.value);
+              renderFilas();
+            });
+            inp.addEventListener('click', ev => ev.stopPropagation());
+          });
+        }, 0);
+      }
+    });
+
+    if (activo) {
+      setTimeout(() => {
+        fila.querySelectorAll('input').forEach(inp => {
+          inp.addEventListener('change', (ev) => {
+            ev.stopPropagation();
+            setReg(fecha, inp.dataset.campo, inp.value);
+            renderFilas();
+          });
+          inp.addEventListener('click', ev => ev.stopPropagation());
+        });
+      }, 0);
+    }
+
+    container.appendChild(fila);
+  });
+}
+
+function recalcularTotales() {
+  const dias = getDiasDelMes();
+  const reg = getReg();
+  let totalTrabajadas = 0, totalExtras = 0, totalFestivas = 0, diasReg = 0;
+
+  dias.forEach(({ fecha, esFinde }) => {
+    const r = reg[fecha] || {};
+    const calc = calcular(r.entrada, r.salida, r.pausa, esFinde);
+    if (calc) {
+      totalTrabajadas += calc.trabajadas;
+      totalExtras += calc.extras;
+      totalFestivas += calc.festivas;
+      diasReg++;
+    }
+  });
+
+  document.getElementById('cards').innerHTML = `
+    <div class="card">
+      <div class="card-label">Días registrados</div>
+      <div class="card-value" style="color:#7986cb">${diasReg}<span class="card-unit">días</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Horas trabajadas</div>
+      <div class="card-value" style="color:#4fc3f7">${totalTrabajadas.toFixed(1)}<span class="card-unit">h</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Extras laborables</div>
+      <div class="card-value" style="color:${totalExtras >= 0 ? '#81c784' : '#e57373'}">${fmt(totalExtras)}</div>
+    </div>
+    <div class="card festivo">
+      <div class="card-label">Horas festivas</div>
+      <div class="card-value" style="color:#ffb74d">+${totalFestivas.toFixed(2)}<span class="card-unit">h</span></div>
+    </div>
+  `;
+}
+
+document.getElementById('btn-prev').addEventListener('click', () => cambiarMes(-1));
+document.getElementById('btn-next').addEventListener('click', () => cambiarMes(1));
+
+// Mostrar tip PWA solo si no está instalada
+if (!window.navigator.standalone && !window.matchMedia('(display-mode: standalone)').matches) {
+  document.getElementById('pwa-tip').style.display = 'block';
+}
+
+init();
+</script>
+</body>
+</html>
